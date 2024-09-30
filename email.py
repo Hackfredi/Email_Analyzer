@@ -34,8 +34,6 @@ raw_email = email_data[0][1].decode('utf-8')
 # 1) Extract Header (everything before the first empty line)
 header, body = raw_email.split("\r\n\r\n", 1)
 
-# 2) Extract Body (everything after the headers)
-# For simple analysis, we're assuming the split works for plain text emails.
 
 # 3) Extract URLs from body using regex
 urls = re.findall(r'(https?://[^\s]+)', body)
