@@ -1,6 +1,8 @@
 import imaplib
 import configparser
-import re
+from header import HeaderProcessor  # Import the HeaderProcessor class
+from url import URLProcessor        # Import the URLProcessor class
+from attachment import AttachmentProcessor  # Import the AttachmentProcessor classm attachment import AttachmentProcessor
 
 # Create ConfigParser object
 config = configparser.ConfigParser()
@@ -34,21 +36,19 @@ raw_email = email_data[0][1].decode('utf-8')
 # 1) Extract Header (everything before the first empty line)
 header, body = raw_email.split("\r\n\r\n", 1)
 
+# Create instances of the processors
+header_processor = HeaderProcessor(header)           # Header object
+url_processor = URLProcessor(body)                   # URL object
+attachment_processor = AttachmentProcessor(raw_email) # Attachment object
 
-# 3) Extract URLs from body using regex
-urls = re.findall(r'(https?://[^\s]+)', body)
-
-# 4) Extract Attachments (look for 'Content-Disposition: attachment')
-attachments = []
-if 'Content-Disposition: attachment' in raw_email:
-    attachment_lines = [line for line in raw_email.split('\n') if 'Content-Disposition: attachment' in line]
-    attachments.extend(attachment_lines)
-
-# Print the extracted data (optional)
-print("Headers:\n", header)
+# Use the encapsulated methods
+print("Headers:\n", header_processor.get_header())
+print("\nIs Phishing:\n", header_processor.is_phishing())  # Check if the header indicates phishing
 print("\nBody:\n", body[:500], "...")  # Print the first 500 chars of body for inspection
-print("\nURLs Found:\n", urls)
-print("\nAttachments Found:\n", attachments)
+print("\nURLs Found:\n", url_processor.get_urls())
+print("\nMalicious URLs:\n", url_processor.check_malicious_urls())  # Check for malicious URLs
+print("\nAttachments Found:\n", attachment_processor.get_attachments())
+print("\nSuspicious Attachments:\n", attachment_processor.has_suspicious_attachments())  # Check for suspicious attachments
 
 # Logout from the server
 mail.logout()
